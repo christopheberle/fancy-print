@@ -36,29 +36,24 @@ _msgtypedict = {
 CHECKMARK = f"[{bcolors.OKGREEN}✔︎{bcolors.ENDC}] "
 FAILMARK = f"[{bcolors.FAIL}x{bcolors.ENDC}] "
 
-@staticmethod
 def _print(msg, mtype : MessageType, end = "\n"):
     print("".join([_msgtypedict[mtype], "\t", msg]), end=end)
 
-@staticmethod
 def print_ok(msg=""):
     _print(msg, mtype=MessageType.OKAY)
 
-@staticmethod
 def print_error(msg=""):
     _print(msg, mtype=MessageType.FAIL)
 
-@staticmethod
 def print_warning(msg=""):
     _print(msg, mtype=MessageType.WARN)
 
-@staticmethod
 def print_info(msg=""):
     _print(msg, mtype=MessageType.INFO)
 
-@staticmethod
 def print_bullet(msg):
     _print(msg, mtype=MessageType.BULLET)
+
 class PendingTaskContext():
     def __init__(self, desc="", verbose=True):
         self.desc = desc
