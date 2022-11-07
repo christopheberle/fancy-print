@@ -1,6 +1,7 @@
 import time
 from enum import Enum
-
+import os
+import sys
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -75,3 +76,11 @@ class PendingTaskContext():
                 _print(f"ERROR: {str(exc_value)}", MessageType.FAIL)
         return True
         
+class NoPrint:
+    def __enter__(self):
+        self._default_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+        
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        sys.stdout.close()
+        sys.stdout = self._default_stdout
