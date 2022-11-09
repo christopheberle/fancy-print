@@ -29,30 +29,26 @@ def print_bullet(msg):
     _print(msg, mtype=MessageType.BULLET)
             
 class PendingTaskContext():    
-    def __init__(self, desc="", anim=None, verbose=True):
+    def __init__(self, desc="", anim=None):
         self.desc = desc
-        self.verbose = verbose
         self.anim = anim
         self.busy = False
+        if self.anim is None:
+            self.print_thread = threading.Thread(target=partial(_print, self.desc, MessageType.BUSY, end="\r"), daemon=True)
+        else:
+            self.print_thread = threading.Thread(target=self.animation, daemon=True)
         
     def __enter__(self):
-        if self.verbose:
-            if self.anim is None:
-                threading.Thread(target=partial(_print, self.desc, MessageType.BUSY, end="\r")).start()
-            else:
-                self.busy = True
-                threading.Thread(target=self.animation, daemon=True).start()
-        return self
+        self.busy = True
+        self.print_thread.start()
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.busy = False
+        self.print_thread.join()
         if exc_value == None:
-            if self.verbose:
-                threading.Thread(target=partial(_print, self.desc, MessageType.DONE)).start()
+            _print(self.desc, MessageType.DONE)
         else:
-            if self.verbose:
-                threading.Thread(target=partial(self._print_error_fancy, exc_type, exc_value, exc_traceback)).start()
-        return True
+            self._print_error_fancy(exc_type, exc_value, exc_traceback)
         
     def _print_error_fancy(self, exc_type, exc_value, exc_traceback):
         _print(self.desc, MessageType.FAIL)
@@ -60,9 +56,10 @@ class PendingTaskContext():
         exc_traceback.print_tb()
         
     def animation(self):
-        iter = busyAnimations.get_iter_from_name(self.anim)
+        it = busyAnimations.get_iter_from_name(self.anim)
         while self.busy:
-            print(f"[{next(iter)}]\t{self.desc}", end="\r")
+            print(f"[{next(it)}]\t{self.desc}", end="\r")
+            sys.stdout.flush()
             sleep(0.35)
 
 class NoPrint:
