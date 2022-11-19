@@ -28,7 +28,6 @@ def print_info(msg=""):
 
 def print_bullet(msg):
     _print(msg, mtype=MessageType.BULLET)
-            
 class PendingTaskContext():    
     def __init__(self, desc="", anim=None, total_progress=None):
         self.desc = desc
@@ -95,8 +94,9 @@ class AsyncBusyIndicator(threading.Thread):
         
         while self._busy:
             if self._update_pending:
-                _print(" " * len(self._print_str), MessageType.BUSY, end="\r")
+                _print(" " * len(self._print_str), MessageType.BUSY, end="\r") # clears the current line
                 _print(self._print_str, MessageType.BUSY, end="\r")
+                self._update_pending = False
             sleep(self.tick_rate)
     
     def update(self, new_desc):
@@ -124,7 +124,8 @@ class AsyncAnimatedBusyIndicator(AsyncBusyIndicator):
         while self._busy:
             next_frame = next(self.anim_iter)
             if self._update_pending:
-                print((2 + len(next_frame) + len(self.desc)) * "", end="\r")
+                print((2 + len(next_frame) + len(self.desc)) * "", end="\r") # clears the current line
+                self._update_pending = False
             print(f"[{next_frame}]\t{self._print_str}", end="\r")
             sys.stdout.flush()
             sleep(self.tick_rate)
