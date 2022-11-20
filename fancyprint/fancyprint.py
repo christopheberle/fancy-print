@@ -4,7 +4,7 @@ import threading
 from functools import partial
 import itertools as its
 from time import sleep
-from .utils import bcolors, MessageType, _msgtypedict
+from .utils import bcolors, MessageType, _msgtypedict, _msgtype_color_dict, _msgtype_str_dict
 from .indicators import busyAnimations
 # from .threading import AsyncBusyIndicator    
     
@@ -28,13 +28,35 @@ def print_info(msg=""):
 
 def print_bullet(msg):
     _print(msg, mtype=MessageType.BULLET)
+    
+class ExtendableContext:
+    def __init__(self, message, mtype : MessageType) -> None:
+        if mtype not in [MessageType.INFO, MessageType.WARN, MessageType.FAIL, MessageType.OKAY]:
+            raise ValueError(f"Requested message type {mtype} is not supported.")
+        self.symb_start = "┌"
+        self.symb_contd = "│"
+        self.symb_end = "└"
+        self.message = message
+        self.msgcol = _msgtype_color_dict[mtype]
+        self.status_str = _msgtype_str_dict[mtype]
+        
+    def __enter__(self):
+        print(f"{self.msgcol}{self.symb_start} {self.status_str}:{bcolors.ENDC} {self.message}")
+        return self
+    
+    def extend(self, message):
+        print(f"{self.msgcol}{self.symb_contd}{bcolors.ENDC}\t{message}")
+        
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        print(f"{self.msgcol}{self.symb_end}{bcolors.ENDC}")
+        
 class PendingTaskContext():    
     def __init__(self, desc="", anim=None, total_progress=None):
         self.desc = desc
         self.anim = anim
         self.busy = False
         if self.anim is None:
-            self.print_thread = AsyncBusyIndicator(self.desc, total_progress=total_progress, daemon=True) #threading.Thread(target=partial(_print, self.desc, MessageType.BUSY, end="\r"), daemon=True)
+            self.print_thread = AsyncBusyIndicator(self.desc, total_progress=total_progress, daemon=True) 
         else:
             self.print_thread = AsyncAnimatedBusyIndicator(self.desc, self.anim, total_progress=total_progress, daemon=True)
             
@@ -94,9 +116,9 @@ class AsyncBusyIndicator(threading.Thread):
         
         while self._busy:
             if self._update_pending:
+                self._update_pending = False
                 _print(" " * len(self._print_str), MessageType.BUSY, end="\r") # clears the current line
                 _print(self._print_str, MessageType.BUSY, end="\r")
-                self._update_pending = False
             sleep(self.tick_rate)
     
     def update(self, new_desc):
@@ -124,8 +146,8 @@ class AsyncAnimatedBusyIndicator(AsyncBusyIndicator):
         while self._busy:
             next_frame = next(self.anim_iter)
             if self._update_pending:
-                print((2 + len(next_frame) + len(self.desc)) * "", end="\r") # clears the current line
                 self._update_pending = False
+                print((2 + len(next_frame) + len(self.desc)) * "", end="\r") # clears the current line
             print(f"[{next_frame}]\t{self._print_str}", end="\r")
             sys.stdout.flush()
             sleep(self.tick_rate)

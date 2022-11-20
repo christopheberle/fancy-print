@@ -31,3 +31,17 @@ _msgtypedict = {
     MessageType.DONE :  f"[{bcolors.OKGREEN}DONE{bcolors.ENDC}]",
     MessageType.BULLET : " --->"
 }
+
+_msgtype_str_dict = {
+    MessageType.OKAY :  f"OKAY",
+    MessageType.WARN :  f"WARN",
+    MessageType.FAIL :  f"FAIL",
+    MessageType.INFO :  f"INFO",
+}
+
+_msgtype_color_dict = {
+    MessageType.OKAY :  bcolors.OKGREEN,
+    MessageType.WARN :  bcolors.WARNING,
+    MessageType.FAIL :  bcolors.FAIL,
+    MessageType.INFO :  bcolors.OKCYAN
+}
