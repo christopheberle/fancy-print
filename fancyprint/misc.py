@@ -1,6 +1,6 @@
 from .utils import TermColors
 
-def color_num_by_val(val, threshold=0, col_above=TermColors.BRIGHT_GREEN, col_below=TermColors.BRIGHT_YELLOW, col_equal=TermColors.BRIGHT_YELLOW, decimals=None, sign=False):
+def color_num_by_val(val, threshold=0, col_above=TermColors.BRIGHT_GREEN, col_below=TermColors.BRIGHT_RED, col_equal=TermColors.BRIGHT_YELLOW, decimals=None, sign=False):
     """Returns a number as a colored string where the color depends on whether the number if above, below or equal to the provided threshold.
 
     Parameters
@@ -27,19 +27,18 @@ def color_num_by_val(val, threshold=0, col_above=TermColors.BRIGHT_GREEN, col_be
     """
     col = None
     sign_str = None
+    print(val < threshold)
     match val:
         case _ if val > threshold:
             col = col_above
             sign_str = "+"
         case _ if val < threshold:
             col = col_below
-            sign_str = "±"
-        case _:
             sign_str = ""
+        case _:
+            sign_str = "±"
             col = col_equal
     if decimals is not None:
-        return_str = f"{col}{round(val, decimals)}{TermColors.ENDC}"
-    else:
-        return_str = f"{col}{val}{TermColors.ENDC}"
+        val = round(val, decimals)
     
-    return f"{sign_str if sign else ''}{return_str}"
+    return f"{col}{sign_str if sign else ''}{val}{TermColors.ENDC}"
