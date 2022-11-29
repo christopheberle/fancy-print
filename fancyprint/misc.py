@@ -27,7 +27,6 @@ def color_num_by_val(val, threshold=0, col_above=TermColors.BRIGHT_GREEN, col_be
     """
     col = None
     sign_str = None
-    print(val < threshold)
     match val:
         case _ if val > threshold:
             col = col_above
