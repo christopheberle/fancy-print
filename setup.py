@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="fancyprint",
-    version="0.2.1",
+    version="0.2.2",
     description="Just a small package to make printing fancy (✨) status messages easier!",
     url="https://github.com/christopheberle/fancy-print",
     author="christopheberle",
